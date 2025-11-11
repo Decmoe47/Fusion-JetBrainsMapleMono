@@ -253,10 +253,12 @@ jobs:
           needs.check-commit-updates.outputs.IS_COMMIT_UPDATED == 'true' && env.MODE == 'Commit' }}
         uses: actions/setup-python@v5
         with:
-          python-version: 3.x
-          check-latest: true
+          python-version: 3.13
 
       - name: Install libgit2-dev
+        if: >-
+          ${{ needs.check-release-updates.outputs.IS_RELEASE_UPDATED == 'true' && env.MODE == 'Release' ||
+          needs.check-commit-updates.outputs.IS_COMMIT_UPDATED == 'true' && env.MODE == 'Commit' }}
         run: sudo apt-get update && sudo apt-get install -y libgit2-dev
 
       - name: Build JetBrains
@@ -271,7 +273,7 @@ jobs:
           fi
 
           cd "JetBrainsMono"
-          pip install -r "requirements.txt"
+          pip install --no-cache-dir -r "requirements.txt"
           gftools builder "sources/config.yaml"
           cd ".."
           mkdir -p "source-fonts/jetbrains"
