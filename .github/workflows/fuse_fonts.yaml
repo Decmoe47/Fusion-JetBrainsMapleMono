@@ -264,6 +264,9 @@ jobs:
           mkdir -p "source-fonts/jetbrains"
           cp -r "JetBrainsMono/fonts/ttf/"* "source-fonts/jetbrains/"
 
+      - name: Install ttfautohint
+        run: sudo apt-get update && sudo apt-get install -y ttfautohint
+  
       - name: Build Sarasa Gothic
         if: >-
           ${{ needs.check-release-updates.outputs.IS_RELEASE_UPDATED == 'true' && env.MODE == 'Release' ||
