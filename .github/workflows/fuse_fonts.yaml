@@ -2,7 +2,7 @@ name: Fuse Fonts
 
 on:
   schedule:
-    - cron: "*/5 * * * *"
+    - cron: "0 0 * * *"
   push:
     branches:
       - "**"
@@ -19,12 +19,12 @@ env:
   JETBRAINS_GIT_URL: ${{ github.server_url }}/JetBrains/JetBrainsMono.git
   JETBRAINS_LATEST_RELEASE_API_URL: ${{ github.api_url }}/repos/JetBrains/JetBrainsMono/releases/latest
   JETBRAINS_COPYRIGHT: Copyright 2020 The JetBrains Mono Project Authors (${{ github.server_url }}/JetBrains/JetBrainsMono)
-  MAPLE_GIT_URL: ${{ github.server_url }}/subframe7536/maple-font.git
-  MAPLE_LATEST_RELEASE_API_URL: ${{ github.api_url }}/repos/subframe7536/maple-font/releases/latest
-  MAPLE_COPYRIGHT: Copyright 2022 The Maple Mono Project Authors (${{ github.server_url }}/subframe7536/maple-font)
-  FUSION_NAME: JetBrains Maple Mono
-  FUSION_ID: JetBrainsMapleMono
-  FUSION_DESCRIPTION: The free and open-source font fused with JetBrains Mono & Maple Mono
+  SARASA_GIT_URL: ${{ github.server_url }}/be5invis/Sarasa-Gothic.git
+  SARASA_LATEST_RELEASE_API_URL: ${{ github.api_url }}/repos/be5invis/Sarasa-Gothic/releases/latest
+  SARASA_COPYRIGHT: Copyright 2015-2024 Belleve Invis (${{ github.server_url }}/be5invis/Sarasa-Gothic)
+  FUSION_NAME: JetBrains Sarasa Gothic
+  FUSION_ID: JetBrainsSarasaGothic
+  FUSION_DESCRIPTION: The free and open-source font fused with JetBrains Mono & Sarasa Gothic
   FUSION_DEVELOPER: Space Time
   FUSION_URL: ${{ github.server_url }}/${{ github.repository }}
   FUSION_COPYRIGHT: Copyright 2025 Space Time (${{ github.server_url }}/${{ github.repository }})
@@ -74,7 +74,7 @@ jobs:
     outputs:
       IS_RELEASE_UPDATED: ${{ steps.check-release-updates.outputs.IS_RELEASE_UPDATED }}
       JETBRAINS_LATEST_VERSION: ${{ steps.check-release-updates.outputs.JETBRAINS_LATEST_VERSION }}
-      MAPLE_LATEST_VERSION: ${{ steps.check-release-updates.outputs.MAPLE_LATEST_VERSION }}
+      SARASA_LATEST_VERSION: ${{ steps.check-release-updates.outputs.SARASA_LATEST_VERSION }}
 
     steps:
       - name: Fetch Git Folder
@@ -102,25 +102,25 @@ jobs:
         id: check-release-updates
         run: |
           JETBRAINS_PREV_VERSION="$(cat "jetbrains_version.txt" 2> "/dev/null" || echo "")"
-          MAPLE_PREV_VERSION="$(cat "maple_version.txt" 2> "/dev/null" || echo "")"
+          SARASA_PREV_VERSION="$(cat "sarasa_version.txt" 2> "/dev/null" || echo "")"
           JETBRAINS_LATEST_VERSION="$(curl -s "$JETBRAINS_LATEST_RELEASE_API_URL" | jq -r ".tag_name")"
-          MAPLE_LATEST_VERSION="$(curl -s "$MAPLE_LATEST_RELEASE_API_URL" | jq -r ".tag_name")"
+          SARASA_LATEST_VERSION="$(curl -s "$SARASA_LATEST_RELEASE_API_URL" | jq -r ".tag_name")"
 
-          if [[ "$FORCE" == "true" || ("$JETBRAINS_PREV_VERSION" != "$JETBRAINS_LATEST_VERSION" || "$MAPLE_PREV_VERSION" != "$MAPLE_LATEST_VERSION") && \
-          "$JETBRAINS_LATEST_VERSION" != "null" && "$MAPLE_LATEST_VERSION" != "null" ]]; then
+          if [[ "$FORCE" == "true" || ("$JETBRAINS_PREV_VERSION" != "$JETBRAINS_LATEST_VERSION" || "$SARASA_PREV_VERSION" != "$SARASA_LATEST_VERSION") && \
+          "$JETBRAINS_LATEST_VERSION" != "null" && "$SARASA_LATEST_VERSION" != "null" ]]; then
             echo "IS_RELEASE_UPDATED=true" >> "$GITHUB_OUTPUT"
             echo "JETBRAINS_LATEST_VERSION="$JETBRAINS_LATEST_VERSION"" >> "$GITHUB_OUTPUT"
-            echo "MAPLE_LATEST_VERSION="$MAPLE_LATEST_VERSION"" >> "$GITHUB_OUTPUT"
+            echo "SARASA_LATEST_VERSION="$SARASA_LATEST_VERSION"" >> "$GITHUB_OUTPUT"
             echo "$JETBRAINS_LATEST_VERSION" > "jetbrains_version.txt"
-            echo "$MAPLE_LATEST_VERSION" > "maple_version.txt"
+            echo "$SARASA_LATEST_VERSION" > "sarasa_version.txt"
           else
             echo "IS_RELEASE_UPDATED=false" >> "$GITHUB_OUTPUT"
           fi
 
           echo "Previous JetBrains Version: $JETBRAINS_PREV_VERSION"
-          echo "Previous Maple Version: $MAPLE_PREV_VERSION"
+          echo "Previous Maple Version: $SARASA_PREV_VERSION"
           echo "Latest JetBrains Version: $JETBRAINS_LATEST_VERSION"
-          echo "Latest Maple Version: $MAPLE_LATEST_VERSION"
+          echo "Latest Maple Version: $SARASA_LATEST_VERSION"
 
       - name: Upload Latest Versions
         uses: actions/upload-artifact@v4
@@ -134,7 +134,7 @@ jobs:
     outputs:
       IS_COMMIT_UPDATED: ${{ steps.check-commit-updates.outputs.IS_COMMIT_UPDATED }}
       JETBRAINS_LATEST_HASH: ${{ steps.check-commit-updates.outputs.JETBRAINS_LATEST_HASH }}
-      MAPLE_LATEST_HASH: ${{ steps.check-commit-updates.outputs.MAPLE_LATEST_HASH }}
+      SARASA_LATEST_HASH: ${{ steps.check-commit-updates.outputs.SARASA_LATEST_HASH }}
 
     steps:
       - name: Fetch Git Folder
@@ -162,24 +162,24 @@ jobs:
         id: check-commit-updates
         run: |
           JETBRAINS_PREV_HASH="$(cat "jetbrains_hash.txt" 2> "/dev/null" || echo "")"
-          MAPLE_PREV_HASH="$(cat "maple_hash.txt" 2> "/dev/null" || echo "")"
+          SARASA_PREV_HASH="$(cat "sarasa_hash.txt" 2> "/dev/null" || echo "")"
           JETBRAINS_LATEST_HASH="$(git ls-remote --heads "$JETBRAINS_GIT_URL" "master" | cut "-c1-7")"
-          MAPLE_LATEST_HASH="$(git ls-remote --heads "$MAPLE_GIT_URL" "variable" | cut "-c1-7")"
+          SARASA_LATEST_HASH="$(git ls-remote --heads "$SARASA_GIT_URL" "main" | cut "-c1-7")"
 
-          if [[ "$FORCE" == "true" || "$JETBRAINS_PREV_HASH" != "$JETBRAINS_LATEST_HASH" || "$MAPLE_PREV_HASH" != "$MAPLE_LATEST_HASH" ]]; then
+          if [[ "$FORCE" == "true" || "$JETBRAINS_PREV_HASH" != "$JETBRAINS_LATEST_HASH" || "$SARASA_PREV_HASH" != "$SARASA_LATEST_HASH" ]]; then
             echo "IS_COMMIT_UPDATED=true" >> "$GITHUB_OUTPUT"
             echo "JETBRAINS_LATEST_HASH="$JETBRAINS_LATEST_HASH"" >> "$GITHUB_OUTPUT"
-            echo "MAPLE_LATEST_HASH="$MAPLE_LATEST_HASH"" >> "$GITHUB_OUTPUT"
+            echo "SARASA_LATEST_HASH="$SARASA_LATEST_HASH"" >> "$GITHUB_OUTPUT"
             echo "$JETBRAINS_LATEST_HASH" > "jetbrains_hash.txt"
-            echo "$MAPLE_LATEST_HASH" > "maple_hash.txt"
+            echo "$SARASA_LATEST_HASH" > "sarasa_hash.txt"
           else
             echo "IS_COMMIT_UPDATED=false" >> "$GITHUB_OUTPUT"
           fi
 
           echo "Previous JetBrains Hash: $JETBRAINS_PREV_HASH"
-          echo "Previous Maple Hash: $MAPLE_PREV_HASH"
+          echo "Previous Maple Hash: $SARASA_PREV_HASH"
           echo "Latest JetBrains Hash: $JETBRAINS_LATEST_HASH"
-          echo "Latest Maple Hash: $MAPLE_LATEST_HASH"
+          echo "Latest Maple Hash: $SARASA_LATEST_HASH"
 
       - name: Upload Latest Hashes
         uses: actions/upload-artifact@v4
@@ -213,8 +213,8 @@ jobs:
     env:
       JETBRAINS_LATEST_VERSION: ${{ needs.check-release-updates.outputs.JETBRAINS_LATEST_VERSION }}
       JETBRAINS_LATEST_HASH: ${{ needs.check-commit-updates.outputs.JETBRAINS_LATEST_HASH }}
-      MAPLE_LATEST_VERSION: ${{ needs.check-release-updates.outputs.MAPLE_LATEST_VERSION }}
-      MAPLE_LATEST_HASH: ${{ needs.check-commit-updates.outputs.MAPLE_LATEST_HASH }}
+      SARASA_LATEST_VERSION: ${{ needs.check-release-updates.outputs.SARASA_LATEST_VERSION }}
+      SARASA_LATEST_HASH: ${{ needs.check-commit-updates.outputs.SARASA_LATEST_HASH }}
       MODE: ${{ matrix.MODE }}
       NERD_SUFFIX: ${{ matrix.NERD.SUFFIX }}
       NERD_ARGS: ${{ matrix.NERD.ARGS }}
@@ -238,7 +238,7 @@ jobs:
           needs.check-commit-updates.outputs.IS_COMMIT_UPDATED == 'true' && env.MODE == 'Commit' }}
         run: |
           if [[ "$MODE" == "Release" ]]; then
-            FUSION_VERSION="1.$(tr -d "." <<< "${JETBRAINS_LATEST_VERSION//v/}").$(tr -d "." <<< "${MAPLE_LATEST_VERSION//v/}")"
+            FUSION_VERSION="1.$(tr -d "." <<< "${JETBRAINS_LATEST_VERSION//v/}").$(tr -d "." <<< "${SARASA_LATEST_VERSION//v/}")"
           else
             FUSION_VERSION="pre"
           fi
@@ -273,27 +273,23 @@ jobs:
           mkdir -p "source-fonts/jetbrains"
           cp -r "JetBrainsMono/fonts/ttf/"* "source-fonts/jetbrains/"
 
-      - name: Build Maple
+      - name: Build Sarasa Gothic
         if: >-
           ${{ needs.check-release-updates.outputs.IS_RELEASE_UPDATED == 'true' && env.MODE == 'Release' ||
           needs.check-commit-updates.outputs.IS_COMMIT_UPDATED == 'true' && env.MODE == 'Commit' }}
         run: |
           if [[ "$MODE" == "Release" ]]; then
-            git clone --branch "$MAPLE_LATEST_VERSION" --single-branch "$MAPLE_GIT_URL"
+            git clone --branch "$SARASA_LATEST_VERSION" --single-branch "$SARASA_GIT_URL"
           else
-            git clone --depth 1 "$MAPLE_GIT_URL"
+            git clone --depth 1 "$SARASA_GIT_URL"
           fi
-
-          cd "maple-font"
-          pip install -r "requirements.txt"
-          python "build.py" --normal --liga --cn --hinted --ttf-only "$NERD_ARGS" $NARROW_ARGS
+      
+          cd "Sarasa-Gothic"
+          npm install
+          npm run build -- ttf gothic
           cd ".."
-          mkdir -p "source-fonts/maple"
-          if [[ "$NERD_SUFFIX" == "NF" ]]; then
-            cp -r "maple-font/fonts/NF-CN/"* "source-fonts/maple/"
-          else
-            cp -r "maple-font/fonts/CN/"* "source-fonts/maple/"
-          fi
+          mkdir -p "source-fonts/sarasa"
+          cp -r "Sarasa-Gothic/fonts/"* "source-fonts/sarasa/"
 
       - name: Install FontForge & FtCli
         if: >-
@@ -314,7 +310,7 @@ jobs:
           for STYLE in "Thin" "ThinItalic" "ExtraLight" "ExtraLightItalic" "Light" "LightItalic" "Regular" "Italic" "Medium" "MediumItalic" "SemiBold" "SemiBoldItalic" "Bold" "BoldItalic" "ExtraBold" "ExtraBoldItalic"; do
             if [[ "$NERD_SUFFIX" == "NF" ]]; then
               fontforge "fuse_fonts.ff" \
-                "source-fonts/maple/MapleMonoNormal-NF-CN-$STYLE.ttf" \
+                "source-fonts/sarasa/SarasaGothicSC-$STYLE.ttf" \
                 "source-fonts/jetbrains/JetBrainsMono-$STYLE.ttf" \
                 "$FUSION_ID-$STYLE" \
                 "$FUSION_NAME" \
@@ -323,7 +319,7 @@ jobs:
                 "fused-font-HT.ttf"
             else
               fontforge "fuse_fonts.ff" \
-                "source-fonts/maple/MapleMonoNormal-CN-$STYLE.ttf" \
+                "source-fonts/sarasa/SarasaGothicSC-$STYLE.ttf" \
                 "source-fonts/jetbrains/JetBrainsMono-$STYLE.ttf" \
                 "$FUSION_ID-$STYLE" \
                 "$FUSION_NAME" \
@@ -346,7 +342,7 @@ jobs:
               --manufacturer "$FUSION_DEVELOPER" \
               --trademark "$FUSION_NAME" \
               --version "$FUSION_VERSION" \
-              --copyright "$(echo -e "$JETBRAINS_COPYRIGHT\n$MAPLE_COPYRIGHT\n$FUSION_COPYRIGHT")" \
+              --copyright "$(echo -e "$JETBRAINS_COPYRIGHT\n$SARASA_COPYRIGHT\n$FUSION_COPYRIGHT")" \
               --license "$FUSION_LICENSE" \
               --urlvendor "https://github.com/SpaceTimee/Fusion-JetBrainsMapleMono" \
               --urldesigner "https://www.spacetimee.xyz" \
@@ -382,7 +378,7 @@ jobs:
           body: >
             Fused with
             [JetBrains Mono ${{ env.JETBRAINS_LATEST_VERSION }}](${{ github.server_url }}/JetBrains/JetBrainsMono/releases/tag/${{ env.JETBRAINS_LATEST_VERSION }}) &
-            [Maple Mono ${{ env.MAPLE_LATEST_VERSION }}](${{ github.server_url }}/subframe7536/maple-font/releases/tag/${{ env.MAPLE_LATEST_VERSION }})
+            [Sarasa Gothic ${{ env.SARASA_LATEST_VERSION }}](${{ github.server_url }}/be5invis/Sarasa-Gothic/releases/tag/${{ env.SARASA_LATEST_VERSION }})
 
 
             Built with
@@ -407,7 +403,7 @@ jobs:
           body: >
             Fused with
             [JetBrains Mono ${{ env.JETBRAINS_LATEST_HASH }}](${{ github.server_url }}/JetBrains/JetBrainsMono/commit/${{ env.JETBRAINS_LATEST_HASH }}) &
-            [Maple Mono ${{ env.MAPLE_LATEST_HASH }}](${{ github.server_url }}/subframe7536/maple-font/commit/${{ env.MAPLE_LATEST_HASH }})
+            [Sarasa Gothic ${{ env.SARASA_LATEST_HASH }}](${{ github.server_url }}/be5invis/Sarasa-Gothic/commit/${{ env.SARASA_LATEST_HASH }})
 
 
             Built with
