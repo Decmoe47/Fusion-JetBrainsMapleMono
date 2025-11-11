@@ -119,9 +119,9 @@ jobs:
           fi
 
           echo "Previous JetBrains Version: $JETBRAINS_PREV_VERSION"
-          echo "Previous Maple Version: $SARASA_PREV_VERSION"
+          echo "Previous Sarasa Version: $SARASA_PREV_VERSION"
           echo "Latest JetBrains Version: $JETBRAINS_LATEST_VERSION"
-          echo "Latest Maple Version: $SARASA_LATEST_VERSION"
+          echo "Latest Sarasa Version: $SARASA_LATEST_VERSION"
 
       - name: Upload Latest Versions
         uses: actions/upload-artifact@v4
@@ -178,9 +178,9 @@ jobs:
           fi
 
           echo "Previous JetBrains Hash: $JETBRAINS_PREV_HASH"
-          echo "Previous Maple Hash: $SARASA_PREV_HASH"
+          echo "Previous Sarasa Hash: $SARASA_PREV_HASH"
           echo "Latest JetBrains Hash: $JETBRAINS_LATEST_HASH"
-          echo "Latest Maple Hash: $SARASA_LATEST_HASH"
+          echo "Latest Sarasa Hash: $SARASA_LATEST_HASH"
 
       - name: Upload Latest Hashes
         uses: actions/upload-artifact@v4
@@ -200,27 +200,12 @@ jobs:
       matrix:
         MODE:
           - Release
-          - Commit
-        NERD:
-          - SUFFIX: NF
-            ARGS: --nerd-font
-          - SUFFIX: XX
-            ARGS: --no-nerd-font
-        NARROW:
-          - SUFFIX: NR
-            ARGS: --cn-narrow
-          - SUFFIX: XX
-            ARGS: ""
     env:
       JETBRAINS_LATEST_VERSION: ${{ needs.check-release-updates.outputs.JETBRAINS_LATEST_VERSION }}
       JETBRAINS_LATEST_HASH: ${{ needs.check-commit-updates.outputs.JETBRAINS_LATEST_HASH }}
       SARASA_LATEST_VERSION: ${{ needs.check-release-updates.outputs.SARASA_LATEST_VERSION }}
       SARASA_LATEST_HASH: ${{ needs.check-commit-updates.outputs.SARASA_LATEST_HASH }}
       MODE: ${{ matrix.MODE }}
-      NERD_SUFFIX: ${{ matrix.NERD.SUFFIX }}
-      NERD_ARGS: ${{ matrix.NERD.ARGS }}
-      NARROW_SUFFIX: ${{ matrix.NARROW.SUFFIX }}
-      NARROW_ARGS: ${{ matrix.NARROW.ARGS }}
 
     steps:
       - name: Fetch Python Script & OFL License
@@ -292,7 +277,7 @@ jobs:
       
           cd "Sarasa-Gothic"
           npm install
-          npm run build -- ttf gothic
+          npm run build -- ttf
           cd ".."
           mkdir -p "source-fonts/sarasa"
           cp -r "Sarasa-Gothic/fonts/"* "source-fonts/sarasa/"
@@ -310,38 +295,20 @@ jobs:
           ${{ needs.check-release-updates.outputs.IS_RELEASE_UPDATED == 'true' && env.MODE == 'Release' ||
           needs.check-commit-updates.outputs.IS_COMMIT_UPDATED == 'true' && env.MODE == 'Commit' }}
         run: |
-          mkdir -p "fused-fonts-HT"
-          mkdir -p "fused-fonts-XX"
+          mkdir -p "fused-fonts"
 
-          for STYLE in "Thin" "ThinItalic" "ExtraLight" "ExtraLightItalic" "Light" "LightItalic" "Regular" "Italic" "Medium" "MediumItalic" "SemiBold" "SemiBoldItalic" "Bold" "BoldItalic" "ExtraBold" "ExtraBoldItalic"; do
-            if [[ "$NERD_SUFFIX" == "NF" ]]; then
-              fontforge "fuse_fonts.ff" \
-                "source-fonts/sarasa/SarasaGothicSC-$STYLE.ttf" \
-                "source-fonts/jetbrains/JetBrainsMono-$STYLE.ttf" \
-                "$FUSION_ID-$STYLE" \
-                "$FUSION_NAME" \
-                "$FUSION_NAME $STYLE" \
-                "$STYLE" \
-                "fused-font-HT.ttf"
-            else
-              fontforge "fuse_fonts.ff" \
-                "source-fonts/sarasa/SarasaGothicSC-$STYLE.ttf" \
-                "source-fonts/jetbrains/JetBrainsMono-$STYLE.ttf" \
-                "$FUSION_ID-$STYLE" \
-                "$FUSION_NAME" \
-                "$FUSION_NAME $STYLE" \
-                "$STYLE" \
-                "fused-font-HT.ttf"
-            fi
-
-            ttx "fused-font-HT.ttf"
-            sed -i "s|<xAvgCharWidth value=\".*\"/>|<xAvgCharWidth value=\"600\"/>|" "fused-font-HT.ttx"
-            sed -i "s|<ulCodePageRange1 value=\".*\"/>|<ulCodePageRange1 value=\"00100000 00010110 00000001 10011111\"/>|" "fused-font-HT.ttx"
-            ttx -o "fused-font-HT.ttf" "fused-font-HT.ttx"
-            rm "fused-font-HT.ttx"
-
-            gftools rename-font "fused-font-HT.ttf" "$FUSION_NAME"
-            gftools update-nameids "fused-font-HT.ttf" \
+          for STYLE in "ExtraLight" "ExtraLightItalic" "Light" "LightItalic" "Regular" "Italic" "SemiBold" "SemiBoldItalic" "Bold" "BoldItalic"; do
+            fontforge "fuse_fonts.ff" \
+              "source-fonts/sarasa/SarasaGothicSC-$STYLE.ttf" \
+              "source-fonts/jetbrains/JetBrainsMono-$STYLE.ttf" \
+              "$FUSION_ID-$STYLE" \
+              "$FUSION_NAME" \
+              "$FUSION_NAME $STYLE" \
+              "$STYLE" \
+              "fused-font.ttf"
+              
+            gftools rename-font "fused-font.ttf" "$FUSION_NAME"
+            gftools update-nameids "fused-font.ttf" \
               --uniqueid "$FUSION_ID-$STYLE-$FUSION_VERSION" \
               --description "$FUSION_DESCRIPTION" \
               --designer "$FUSION_DEVELOPER" \
@@ -350,18 +317,15 @@ jobs:
               --version "$FUSION_VERSION" \
               --copyright "$(echo -e "$JETBRAINS_COPYRIGHT\n$SARASA_COPYRIGHT\n$FUSION_COPYRIGHT")" \
               --license "$FUSION_LICENSE" \
-              --urlvendor "https://github.com/SpaceTimee/Fusion-JetBrainsMapleMono" \
+              --urlvendor "https://github.com/SpaceTimee/Fusion-JetBrainsSarasaMono" \
               --urldesigner "https://www.spacetimee.xyz" \
               --urllicense "https://openfontlicense.org"
-            gftools drop-hints "fused-font-HT.ttf.fix" "fused-font-XX.ttf.fix"
+            gftools drop-hints "fused-font.ttf.fix" "fused-font.ttf.fix"
 
-            ftcli fix "monospace" "fused-font-HT.ttf.fix"
-            ftcli fix "monospace" "fused-font-XX.ttf.fix"
+            ftcli fix "monospace" "fused-font.ttf.fix"
 
-            mv "fused-font-HT.ttf.fix" "fused-fonts-HT/$FUSION_ID-$STYLE.ttf"
-            mv "fused-font-XX.ttf.fix" "fused-fonts-XX/$FUSION_ID-$STYLE.ttf"
-            cp "OFL.txt" "fused-fonts-HT/LICENSE.txt"
-            cp "OFL.txt" "fused-fonts-XX/LICENSE.txt"
+            mv "fused-font-HT.ttf.fix" "fused-fonts/$FUSION_ID-$STYLE.ttf"
+            cp "OFL.txt" "fused-fonts/LICENSE.txt"
           done
 
       - name: Zip Fonts
@@ -369,16 +333,14 @@ jobs:
           ${{ needs.check-release-updates.outputs.IS_RELEASE_UPDATED == 'true' && env.MODE == 'Release' ||
           needs.check-commit-updates.outputs.IS_COMMIT_UPDATED == 'true' && env.MODE == 'Commit' }}
         run: |
-          zip -r -j "$FUSION_ID-$NERD_SUFFIX-$NARROW_SUFFIX-HT.zip" "fused-fonts-HT/"
-          zip -r -j "$FUSION_ID-$NERD_SUFFIX-$NARROW_SUFFIX-XX.zip" "fused-fonts-XX/"
+          zip -r -j "$FUSION_ID.zip" "fused-fonts/"
 
       - name: Release Release Fonts
         if: ${{ needs.check-release-updates.outputs.IS_RELEASE_UPDATED == 'true' && env.MODE == 'Release' }}
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            ${{ env.FUSION_ID }}-${{ env.NERD_SUFFIX }}-${{ env.NARROW_SUFFIX }}-HT.zip
-            ${{ env.FUSION_ID }}-${{ env.NERD_SUFFIX }}-${{ env.NARROW_SUFFIX }}-XX.zip
+            ${{ env.FUSION_ID }}.zip
           tag_name: ${{ env.FUSION_VERSION }}
           name: ${{ env.FUSION_VERSION }}
           body: >
@@ -395,29 +357,4 @@ jobs:
           draft: false
           prerelease: false
           make_latest: true
-          token: ${{ github.token }}
-
-      - name: Release Commit Fonts
-        if: ${{ needs.check-commit-updates.outputs.IS_COMMIT_UPDATED == 'true' && env.MODE == 'Commit' }}
-        uses: softprops/action-gh-release@v2
-        with:
-          files: |
-            ${{ env.FUSION_ID }}-${{ env.NERD_SUFFIX }}-${{ env.NARROW_SUFFIX }}-HT.zip
-            ${{ env.FUSION_ID }}-${{ env.NERD_SUFFIX }}-${{ env.NARROW_SUFFIX }}-XX.zip
-          tag_name: ${{ env.FUSION_VERSION }}
-          name: ${{ env.FUSION_VERSION }}
-          body: >
-            Fused with
-            [JetBrains Mono ${{ env.JETBRAINS_LATEST_HASH }}](${{ github.server_url }}/JetBrains/JetBrainsMono/commit/${{ env.JETBRAINS_LATEST_HASH }}) &
-            [Sarasa Gothic ${{ env.SARASA_LATEST_HASH }}](${{ github.server_url }}/be5invis/Sarasa-Gothic/commit/${{ env.SARASA_LATEST_HASH }})
-
-
-            Built with
-            [Github Workflow #${{ github.run_number }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
-
-
-            [不知道下载哪个?](${{ env.FUSION_URL }}?tab=readme-ov-file#下载哪个)
-          draft: false
-          prerelease: true
-          make_latest: false
           token: ${{ github.token }}
