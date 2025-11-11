@@ -88,7 +88,8 @@ jobs:
           echo "PREV_RUN_ID="$PREV_RUN_ID"" >> "$GITHUB_ENV"
           echo "Previous Run Id: $PREV_RUN_ID"
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}
 
       - name: Download Previous Versions
         continue-on-error: true
@@ -96,7 +97,7 @@ jobs:
         with:
           name: Versions
           run-id: ${{ env.PREV_RUN_ID }}
-          github-token: ${{ secrets.GH_TOKEN }}
+          github-token: ${{ github.token }}
 
       - name: Check Release Updates
         id: check-release-updates
@@ -148,7 +149,7 @@ jobs:
           echo "PREV_RUN_ID="$PREV_RUN_ID"" >> "$GITHUB_ENV"
           echo "Previous Run Id: $PREV_RUN_ID"
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
 
       - name: Download Previous Hashes
         continue-on-error: true
@@ -156,7 +157,7 @@ jobs:
         with:
           name: Hashes
           run-id: ${{ env.PREV_RUN_ID }}
-          github-token: ${{ secrets.GH_TOKEN }}
+          github-token: ${{ github.token }}
 
       - name: Check Commit Updates
         id: check-commit-updates
@@ -389,7 +390,7 @@ jobs:
           draft: false
           prerelease: false
           make_latest: true
-          token: ${{ secrets.GH_TOKEN }}
+          token: ${{ github.token }}
 
       - name: Release Commit Fonts
         if: ${{ needs.check-commit-updates.outputs.IS_COMMIT_UPDATED == 'true' && env.MODE == 'Commit' }}
@@ -414,4 +415,4 @@ jobs:
           draft: false
           prerelease: true
           make_latest: false
-          token: ${{ secrets.GH_TOKEN }}
+          token: ${{ github.token }}
